@@ -1,6 +1,9 @@
 package edu.school21.repository;
 
 import edu.school21.entity.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.lang.reflect.InvocationTargetException;
@@ -12,13 +15,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Component
 public class UserRepositoryJdbcImpl implements UserRepository<User> {
 
-    private final DataSource dataSource;
-
-    public UserRepositoryJdbcImpl(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
+    @Autowired
+    @Qualifier("hikariDataSource")
+    private DataSource dataSource;
 
     @Override
     public List<User> findAll() throws SQLException {
@@ -56,8 +58,8 @@ public class UserRepositoryJdbcImpl implements UserRepository<User> {
         final String SQLQuery = "UPDATE users SET email = ? WHERE id = ?";
         try (Connection connection = dataSource.getConnection()) {
             PreparedStatement preparedStatement = connection.prepareStatement(SQLQuery);
-            preparedStatement.setString(1,entity.getEmail());
             preparedStatement.setInt(2, entity.getId());
+            preparedStatement.setString(1,entity.getEmail());
             preparedStatement.executeUpdate();
         }
     }
